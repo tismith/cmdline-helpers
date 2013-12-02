@@ -11,14 +11,15 @@ usage p = do
 	putStrLn $ p ++ " forever|[0-9]* command-to-test argument1 argument2 ..."
 	return False
 
-parseArgs :: [String] -> Maybe (Maybe Int)
+data ParsedArgs = Forever | Times Int
+parseArgs :: [String] -> Maybe ParsedArgs
 parseArgs [] = Nothing
 parseArgs (x:[]) = Nothing
 parseArgs (x:_)
-	| x == "forever" = Just Nothing
+	| x == "forever" = Just Forever
 	| otherwise = case (reads x) of
 		[] -> Nothing
-		[(n,_)] -> if (n >= 0) then Just (Just n) else Nothing
+		[(n,_)] -> if (n >= 0) then Just (Times n) else Nothing
 
 parseStatus :: (Maybe ProcessStatus) -> Bool
 parseStatus (Just (Exited ExitSuccess)) = True
@@ -46,8 +47,8 @@ main =	do
 	let command = head (tail args)
 	let commandArgs = tail (tail args)
 	commandSucceeded <- case parsedArgs of
-		Just (Just n) -> liftM (retryTimes n) (forkAndRun command commandArgs)
-		Just Nothing -> liftM retryForever (forkAndRun command commandArgs)
+		Just (Times n) -> liftM (retryTimes n) (forkAndRun command commandArgs)
+		Just Forever -> liftM retryForever (forkAndRun command commandArgs)
 		_ -> usage programName
 	if commandSucceeded then exitSuccess else exitFailure
 	

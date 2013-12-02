@@ -5,6 +5,7 @@ import System.Exit -- exitSuccess,exitFailure
 import System.Posix.Process -- forkProcess
 import System.Environment -- getProgName,getArgs
 import Control.Monad -- liftM
+import Control.Applicative -- <$>
 
 usage :: String -> IO Bool
 usage p = do
@@ -30,10 +31,8 @@ parseStatus (Just (Exited (ExitFailure n))) = n
 parseStatus _ = 1
 
 forkAndRun :: String -> [String] -> IO Int
-forkAndRun program args = do
-	childPid <- forkProcess (executeFile program True args Nothing) 
-	status <- getProcessStatus True False childPid
-	return $ parseStatus status
+forkAndRun program args = 
+	parseStatus <$> ((forkProcess (executeFile program True args Nothing)) >>= (getProcessStatus True False))
 
 main :: IO ()
 main =	do
