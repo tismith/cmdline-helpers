@@ -1,4 +1,4 @@
--- RetryTimes.hs a basic conman helper rewritten in haskell as an exercise 
+-- ExpectReturn.hs a basic conman helper rewritten in haskell as an exercise 
 
 module Main where
 import System.Exit -- exitSuccess,exitFailure
@@ -43,8 +43,8 @@ main =	do
 	let commandArgs = tail (tail args)
 	let returnCode = forkAndRun command commandArgs
 	codeMatched <- case parsedArgs of
-		Just Any -> liftM (\_->True) returnCode
-		Just None -> liftM (\_->False) returnCode
+		Just Any -> returnCode >> return True
+		Just None -> returnCode >> return False
 		Just (Exactly n) -> liftM (== n) returnCode
 		Just (NotExactly n) -> liftM (/= n) returnCode
 		_ -> usage programName
