@@ -17,10 +17,10 @@ cabal-version:       >=1.8
 executable retry-times
   main-is:		RetryTimes.hs
   -- other-modules:       
-  build-depends:       base ==4.5.*, unix ==2.5.*
+  build-depends:       base >=4.5, unix >=2.5
 
 executable expect-return
   main-is:		ExpectReturn.hs
   -- other-modules:       
-  build-depends:       base ==4.5.*, unix ==2.5.*
+  build-depends:       base >=4.5, unix >=2.5
   
