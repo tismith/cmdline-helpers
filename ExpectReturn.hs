@@ -26,8 +26,9 @@ parseArgs (x:_)
 parseStatus :: (Maybe ProcessStatus) -> Int
 parseStatus (Just (Exited ExitSuccess)) = 0
 parseStatus (Just (Exited (ExitFailure n))) = n
--- This is hard since there is not Signal->Int conversion
--- parseStatus (Just (Terminated s)) == s + 128
+-- This is unsafe... with Signals being a CInt being an Int32 and as
+-- such, wider than haskell's Int class
+parseStatus (Just (Terminated s)) = fromIntegral s + 128
 parseStatus _ = 1
 
 forkAndRun :: String -> [String] -> IO Int
