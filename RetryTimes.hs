@@ -4,6 +4,7 @@ module Main where
 import System.Exit -- exitSuccess,exitFailure
 import System.Posix.Process -- forkProcess
 import System.Environment -- getProgName,getArgs
+import Control.Monad -- liftM
 
 usage :: String -> IO Bool
 usage p = do
@@ -30,17 +31,13 @@ forkAndRun program args = do
 	status <- getProcessStatus True False childPid
 	return $ parseStatus status
 
-retryForever :: IO Bool -> IO Bool
-retryForever f = do 
-	val <- f
-	if val then return True else retryForever f
+retryForever :: Bool -> Bool
+retryForever f = if f then True else retryForever f
 
-retryTimes :: Int -> IO Bool -> IO Bool
+retryTimes :: Int -> Bool -> Bool
 retryTimes n f 
-	| n <= 0 = do return False
-	| otherwise = do 
-		val <- f
-		if val then return True else (retryTimes (n-1) f)
+	| n <= 0 = False
+	| otherwise = if f then True else (retryTimes (n-1) f)
 
 main :: IO ()
 main =	do
@@ -50,8 +47,8 @@ main =	do
 	let command = head (tail args)
 	let commandArgs = tail (tail args)
 	commandSucceeded <- case parsedArgs of
-		Just (Just n) -> retryTimes n (forkAndRun command commandArgs)
-		Just Nothing -> retryForever (forkAndRun command commandArgs)
+		Just (Just n) -> liftM (retryTimes n) (forkAndRun command commandArgs)
+		Just Nothing -> liftM retryForever (forkAndRun command commandArgs)
 		_ -> usage programName
 	if commandSucceeded then exitSuccess else exitFailure
 	
