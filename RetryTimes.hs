@@ -26,7 +26,6 @@ parseStatus _ = False
 
 forkAndRun :: String -> [String] -> IO Bool
 forkAndRun program args = do
-	putStrLn program
 	childPid <- forkProcess (executeFile program True args Nothing) 
 	status <- getProcessStatus True False childPid
 	return $ parseStatus status
