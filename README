@@ -1,0 +1,13 @@
+This is a collection of small utilities to help out with programs
+that need to run shell commands.
+
+Started as a test rewrite of some utilites from a connection manager daemon
+but it exists on it's own now.
+
+They're desiged to be able to cascade with other commands. 
+
+E.g.
+
+expect-return 1 sh -c "return 1"
+
+Will have a 'successful' return code of 0
