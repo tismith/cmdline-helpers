@@ -3,16 +3,20 @@
 
 name:                cmdline-helpers
 version:             0.1.0.0
-synopsis:            Internal cmdline helpers written in haskell
+synopsis:            Command-line helpers written in haskell
 -- description:         
--- license:             
---license-file:        LICENSE
+license:             MIT
+license-file:        LICENSE
 author:              Toby Smith
 maintainer:          toby@tismith.id.au
 
 category:            System
 build-type:          Simple
 cabal-version:       >=1.8
+
+source-repository head
+  type: git
+  location: http://github.com/tismith/cmdline-helpers
 
 executable retry-times
   main-is:		RetryTimes.hs
