@@ -19,11 +19,11 @@ parseArgs (x:[]) = Nothing
 parseArgs (x:_)
 	| x == "any" = Just Any
 	| x == "none" = Just None
-	| otherwise = case (reads x) of
+	| otherwise = case reads x of
 		[] -> Nothing
-		[(n,_)] -> if (n >= 0) then Just (Exactly n) else Just (NotExactly (-n))
+		[(n,_)] -> Just (if n >= 0 then Exactly n else NotExactly (-n))
 
-parseStatus :: (Maybe ProcessStatus) -> Int
+parseStatus :: Maybe ProcessStatus -> Int
 parseStatus (Just (Exited ExitSuccess)) = 0
 parseStatus (Just (Exited (ExitFailure n))) = n
 -- This is unsafe... with Signals being a CInt being an Int32 and as
@@ -33,7 +33,7 @@ parseStatus _ = 1
 
 forkAndRun :: String -> [String] -> IO Int
 forkAndRun program args = 
-	parseStatus <$> ((forkProcess (executeFile program True args Nothing)) >>= (getProcessStatus True False))
+	parseStatus <$> (forkProcess (executeFile program True args Nothing) >>= getProcessStatus True False)
 
 main :: IO ()
 main =	do

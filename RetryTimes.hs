@@ -18,17 +18,17 @@ parseArgs [] = Nothing
 parseArgs (x:[]) = Nothing
 parseArgs (x:_)
 	| x == "forever" = Just Forever
-	| otherwise = case (reads x) of
+	| otherwise = case reads x of
 		[] -> Nothing
-		[(n,_)] -> if (n >= 0) then Just (Times n) else Nothing
+		[(n,_)] -> if n >= 0 then Just (Times n) else Nothing
 
-parseStatus :: (Maybe ProcessStatus) -> Bool
+parseStatus :: Maybe ProcessStatus -> Bool
 parseStatus (Just (Exited ExitSuccess)) = True
 parseStatus _ = False
 
 forkAndRun :: String -> [String] -> IO Bool
-forkAndRun program args = do
-	parseStatus <$> (forkProcess (executeFile program True args Nothing) >>= (getProcessStatus True False))
+forkAndRun program args = 
+	parseStatus <$> (forkProcess (executeFile program True args Nothing) >>= getProcessStatus True False)
 
 retryForever :: (Monad m) => m Bool -> m Bool
 retryForever f = do 
@@ -50,7 +50,7 @@ main =	do
 	let command = head (tail args)
 	let commandArgs = tail (tail args)
 	commandSucceeded <- case parsedArgs of
-		Just (Times n) -> (retryTimes n) (forkAndRun command commandArgs)
+		Just (Times n) -> retryTimes n (forkAndRun command commandArgs)
 		Just Forever -> retryForever (forkAndRun command commandArgs)
 		_ -> usage programName
 	if commandSucceeded then exitSuccess else exitFailure
